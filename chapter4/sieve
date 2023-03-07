@@ -1,0 +1,19 @@
+declare
+fun {Generate N Limit}
+   if N<Limit then
+      N|{Generate N+1 Limit}
+   else nil end
+end
+fun {Sieve Xs}
+   case Xs
+   of nil then nil
+   [] X|Xr then Is in
+      thread Is={Filter Xr fun {$ Y} Y mod X \= 0 end} end
+      X|{Sieve Is}
+   end
+end
+local Xs Ys in
+   thread Xs={Generate 2 100000} end
+   thread Ys={Sieve Xs} end
+   {Browse Ys}
+end

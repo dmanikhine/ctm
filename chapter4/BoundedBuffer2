@@ -1,0 +1,45 @@
+declare
+proc {DGenerate N Xs}
+   {Browse fn_gen_start}
+   case Xs of X|Xr then
+      {Browse gen_start_init_headXs}      
+      X=N
+      {Browse gen_end_int_headXs}
+      {DGenerate N+1 Xr}
+   end
+end
+fun {DSum ?Xs A Limit}
+   {Browse fn_sum_start}
+   if Limit>0 then
+      {Browse sum_start_init_listXs}
+      X|Xr=Xs
+      {Browse sum_end_init_listXs}
+   in
+      {DSum Xr A+X Limit-1}
+   else A end
+end
+proc {Buffer N ?Xs Ys}
+   fun {Startup N ?Xs}
+      if N==0 then Xs
+      else Xr in Xs=_|Xr {Startup N-1 Xr} end
+   end
+
+   proc {AskLoop Ys ?Xs ?End}
+      case Ys of Y|Yr then Xr End2 in
+	 Xs=Y|Xr
+	 End=_|End2
+	 {AskLoop Yr Xr End2}
+      end
+   end
+   End={Startup N Xs}
+in
+   {AskLoop Ys Xs End}
+end
+
+local Xs Ys  S in
+   thread {DGenerate 0 Xs} end
+   thread {Buffer 4 Xs Ys} end
+   thread S={DSum Xs 0 2} end
+   {Browse Xs} {Browse Ys}
+   {Browse S}
+end

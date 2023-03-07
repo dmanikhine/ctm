@@ -1,0 +1,33 @@
+declare
+proc {NewPortObjects ?AddPortObject ?Call}
+   Sin P={NewPort Sin}
+
+   proc {MsgLoop S1 Procs}
+      case S1
+      of add(I Proc Sync)|S2 then Procs2 in
+	 Procs2={AdjoinAt Procs I Proc}
+	 Sync=unit
+	 {MsgLoop S2 Procs2}
+      [] msg(I M)|S2 then
+	 try {Procs.I M} catch _ then skip end
+	 {MsgLoop S2 Procs}
+      [] nil then skip end
+   end
+in
+   thread {MsgLoop Sin procs} end
+
+   proc {AddPortObject I Proc}
+   Sync in
+      {Send P add(I Proc Sync)}
+      {Wait Sync}
+   end
+
+   proc {Call I M}
+      {Send P msg(I M)}
+   end
+end
+
+     
+	 
+	 
+	 

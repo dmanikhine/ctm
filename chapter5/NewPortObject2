@@ -1,0 +1,27 @@
+declare
+NumberOfPartners=2
+fun {NewPortObject2 Proc}
+   Sin in
+   thread for Msg in Sin do {Proc Msg} end end
+   {NewPort Sin}
+end
+
+fun{Player Others}
+   {NewPortObject2
+    proc {$ Msg}
+       case Msg of ball then
+	  Ran=({OS.rand} mod NumberOfPartners)+1
+       in
+	  {Delay 1000}
+	  {Browse Others.3}
+	  {Browse Ran}
+	  {Send Others.Ran ball}
+       end
+    end}
+end
+
+P1={Player others(P2 P3 'p1')}
+P2={Player others(P1 P3 'p2')}
+P3={Player others(P1 P2 'p3')}
+
+{Send P1 ball}

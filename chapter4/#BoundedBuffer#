@@ -1,0 +1,25 @@
+declare
+proc {DGenerate N Xs}
+   {Browse fn_gen_start}
+   case Xs of X|Xr then
+      {Browse gen_start_init_headXs}      
+      X=N
+      {Browse gen_end_int_headXs}
+      {DGenerate N+1 Xr}
+   end
+end
+fun {DSum ?Xs A Limit}
+   {Browse fn_sum_start}
+   if Limit>0 then
+      {Browse sum_start_init_listXs}
+      Xs=X|Xr
+      {Browse sum_end_init_listXs}
+   in
+      {DSum Xr A+X Limit-1}
+   else A end
+end
+local Xs S in
+   thread {DGenerate 0 Xs} end
+   thread S={DSum Xs 0 2} end
+   {Browse S}
+end

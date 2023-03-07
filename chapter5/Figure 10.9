@@ -1,0 +1,14 @@
+declare [QTk]={Module.link ['x-oz://system/wp/QTk.ozf']}
+fun {NewProgWindow CheckMsg}
+   InfoHdl See={NewCell true}
+   H D=td(title:"Progress monitor"
+	  label(text:nil handle:InfoHdl)
+	  checkbutton(
+	     text:CheckMsg handle:H init:true
+	     action:proc {$} See:={H get($)} end))
+in
+   {{QTk.build D} show}
+   proc {$ Msg}
+      if @See then {Delay 50} {InfoHdl set(text:Msg)} end
+   end
+end

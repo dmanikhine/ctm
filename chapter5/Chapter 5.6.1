@@ -1,0 +1,66 @@
+declare [QTk]={Module.link ['x-oz://system/wp/QTk.ozf']}
+fun {NewProgWindow CheckMsg}
+   InfoHdl See={NewCell true}
+   H D=td(title:"Progress monitor"
+	  label(text:nil handle:InfoHdl)
+	  checkbutton(
+	     text:CheckMsg handle:H init:true
+	     action:proc {$} See:={H get($)} end))
+in
+   {{QTk.build D} show}
+   proc {$ Msg}
+      if @See then {Delay 50} {InfoHdl set(text:Msg)} end
+   end
+end
+
+proc {NewPortObjects ?AddPortObject ?Call}
+   Sin P={NewPort Sin}
+
+   proc {MsgLoop S1 Procs}
+      case S1
+      of add(I Proc Sync)|S2 then Procs2 in
+	 Procs2={AdjoinAt Procs I Proc}
+	 Sync=unit
+	 {MsgLoop S2 Procs2}
+      [] msg(I M)|S2 then
+	 try {Procs.I M} catch _ then skip end
+	 {MsgLoop S2 Procs}
+      [] nil then skip end
+   end
+in
+   thread {MsgLoop Sin procs} end
+
+   proc {AddPortObject I Proc}
+   Sync in
+      {Send P add(I Proc Sync)}
+      {Wait Sync}
+   end
+
+   proc {Call I M}
+      {Send P msg(I M)}
+   end
+end
+
+declare AddPortObject Call
+{NewPortObjects AddPortObject Call}
+
+InfoMsg={NewProgWindow "See ping-pong"}
+
+fun {PingPongProc Other}
+   proc {$ Msg}
+	{Delay 1000}
+      case Msg
+      of ping(N) then
+	 {InfoMsg "ping("#N#")"}
+	 {Call Other pong(N+1)}
+      [] pong(N) then
+	 {InfoMsg "pong ("#N#")"}
+	 {Call Other ping(N+1)}
+      end
+   end
+end
+
+{AddPortObject pingobj {PingPongProc pongobj}}
+{AddPortObject pongobj {PingPongProc pingobj}}
+
+

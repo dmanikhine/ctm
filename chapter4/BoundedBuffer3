@@ -1,0 +1,41 @@
+declare
+proc {DGenerate N Xs}
+     case Xs of X|Xr then
+      X=N
+      {DGenerate N+1 Xr}
+   end
+end
+fun {DSum ?Xs A Limit}
+   
+   if Limit>0 then
+           X|Xr=Xs
+        in
+      {DSum Xr A+X Limit-1}
+   else A end
+end
+proc {Buffer N ?Xs Ys}
+   fun {Startup N ?Hs}
+      if N==0 then Hs
+      else Xr in Hs=_|Xr {Startup N-1 Xr} end
+   end
+
+   proc {AskLoop Ys ?Xs ?End}
+      case Ys of Y|Yr then Xr End2 in
+	 Xs=Y|Xr
+	 End=_|End2
+	 {AskLoop Yr Xr End2}
+      end
+   end
+   End={Startup N Xs}
+   H|T=End
+   {Browse H}
+in
+   {AskLoop Ys Xs End}
+end
+
+local Xs Ys  S in
+   thread {DGenerate 0 Xs} end
+   thread {Buffer 4 Xs Ys} end
+   thread S={DSum Ys 0 8} end
+   {Browse S}
+end

@@ -1,0 +1,21 @@
+declare AddPortObject Call
+{NewPortObjects AddPortObject Call}
+
+InfoMsg={NewProgWindow "See ping-pong"}
+
+fun {PingPongProc Other}
+   proc {$ Msg}
+      case Msg
+      of ping(N) then
+	 {InfoMsg "ping("#N#")"}
+	 {Call Other pong(N+1)}
+      [] pong(N) then
+	 {InfoMsg "pong ("#N#")"}
+	 {Call Other ping(N+1)}
+      end
+   end
+end
+
+{AddPortObject pingobj {PingPongProc pongobj}}
+{AddPortObject pongobj {PingPongProc pingobj}}
+{Call pingobj ping(0)}
