@@ -1,6 +1,6 @@
 functor
 export
-   new_port_object1:NewPortObject
+   new_port_object:NewPortObject
    new_port_object2:NewPortObject2
 define
    fun {NewPortObject Init Fun}

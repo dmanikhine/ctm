@@ -1,0 +1,16 @@
+declare
+fun {SlowNet2}
+   C={NewCell unit} in
+   proc {$ D M}
+      Old New in
+      {Exchange C Old New}
+      thread
+	 {Delay D} {Wait Old} {Browse M} New=unit
+      end
+   end
+end
+SN={SlowNet2}
+{SN 2000 'Message1'}
+{SN 2000 'Message2'}
+{SN 100 'Message3'}
+{SN 100 'Message4'}

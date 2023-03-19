@@ -1,0 +1,50 @@
+declare
+Y
+fun {NewMVar}
+   P1 P2 Si1 Si2
+   {NewPort Si1 P1} %put msgs received on P1
+   {NewPort Si2 P2} %get msgs received on P2
+   %Put puts the content in C if box is empty or waits
+   C = {NewCell _}
+   %content of D is either empty or unbound variable
+   %signifying empty or full box respectivaly
+   D = {NewCell empty}
+   proc {PutIter Xs}
+      case Xs of (Sync#X)|Xr then
+         {Wait @D}
+         @C = X
+         Sync = ok
+         D := _
+         {PutIter Xr}
+      end
+   end
+   proc {GetIter Xs}
+      case Xs of (Sync#X)|Xr then
+         {Wait @C}
+         X = @C
+         Sync = ok
+         C := _
+         @D = empty
+         {GetIter Xr}
+      end
+   end
+   proc {Put X}
+      Sync in
+      {Send P1 Sync#X}
+      {Wait Sync}
+   end
+   proc {Get ?X}
+      Sync in
+      {Send P2 Sync#X}
+      {Wait Sync}
+   end
+in
+   thread {PutIter Si1} end
+   thread {GetIter Si2} end
+   mvar(put:Put get:Get)
+end
+N={NewMVar}
+{N.put 5}
+{N.get Y}
+{Browse Y}
+ 
