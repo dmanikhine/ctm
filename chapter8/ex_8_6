@@ -1,0 +1,75 @@
+declare Channel
+local
+   proc {MySend C M}
+      X in
+      {Send C.send send(M#X)}
+      {Wait X}
+   end   
+   fun {Receive C}
+      M in
+      {Send C.receive receive(M)}
+      {Wait M}
+      M
+   end
+
+   proc {WatchDog Ci Si}
+      {Si {Channel.receive Ci}}
+      {WatchDog Ci Si}
+   end
+   
+   proc {MReceive Cs}
+      for Ci#Si in Cs do	 
+	 thread {WatchDog Ci Si} end 
+      end
+   end
+   
+   fun {New}
+      P1 P2 S1 S2
+      {NewPort S1 P1} %for receive msgs
+      {NewPort S2 P2} %for send msgs
+      proc {Iter S1 S2}
+         case S1#S2 of (receive(R)|S1s)#(send(X#Y)|S2s)
+         then
+            R=X
+            Y = unit
+            {Iter S1s S2s}
+         end
+      end
+   in
+      thread {Iter S1 S2} end
+      channel(receive:P1 send:P2)
+   end
+in
+   Channel = c(new:New send:MySend
+               receive:Receive
+               mreceive:MReceive)
+end
+
+proc {S1 M}
+   {Browse chanel1#M}
+end
+proc {S2 M}
+   {Browse chanel2#M}
+end
+
+
+local C in
+   {Browse started}  
+   C1 = {Channel.new}
+   C2 = {Channel.new}
+   Cs=[C1#S1 C2#S2]
+   {Channel.mreceive Cs}
+   
+    
+   {Delay 1000}
+   {Channel.send C1 msg1}
+   {Delay 1000}
+   {Channel.send C2 msg2}
+
+   {Delay 1000}
+   {Channel.send C1 msg3}
+   {Delay 1000}
+   {Channel.send C2 msg4}
+
+   
+end
